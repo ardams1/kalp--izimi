@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>sürprizzz</title>
+  <style>
+    html, body {
+      margin: 0; padding: 0; height: 100%;
+      background-color: black;
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+      background-color: black;
+      width: 100vw;
+      height: 100vh;
+    }
+    #yazi {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.5);
+      color: red;
+      font-family: Arial, sans-serif;
+      font-weight: bold;
+      opacity: 0;
+      transition: all 1.5s ease-in-out;
+      pointer-events: none;
+      user-select: none;
+      font-size: 5vw;  /* Küçük ekran için yüzde bazlı */
+    }
+    @media (min-width: 600px) {
+      #yazi {
+        font-size: 28px; /* Masaüstünde sabit boyut */
+      }
+    }
+    #yazi.show {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1.2);
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <div id="yazi">Seni Çok Seviyorum Aşkımm 💖<br> </div>
+
+  <script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const yazi = document.getElementById("yazi");
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+    }
+
+    function xt(t) {
+      return 16 * Math.pow(Math.sin(t), 3);
+    }
+
+    function yt(t) {
+      return 13 * Math.cos(t) - 5 * Math.cos(2 * t)
+           - 2 * Math.cos(3 * t) - Math.cos(4 * t);
+    }
+
+    let t = 0;
+    let animationRunning = false;
+
+    function draw() {
+      if (!animationRunning) return;
+
+      if (t > Math.PI * 2) {
+        yazi.classList.add("show");
+        animationRunning = false;
+        return;
+      }
+
+      const scaleFactor = Math.min(canvas.width, canvas.height) / 40;
+
+      const x = xt(t) * scaleFactor;
+      const y = -yt(t) * scaleFactor;
+
+      if (t === 0) {
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+      } else {
+        ctx.lineTo(x, y);
+        ctx.strokeStyle = "red";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+
+      t += 0.02;
+      requestAnimationFrame(draw);
+    }
+
+    function startAnimation() {
+      t = 0;
+      yazi.classList.remove("show");
+      animationRunning = true;
+      resizeCanvas();
+      draw();
+    }
+
+    window.addEventListener("resize", () => {
+      if (!animationRunning) {
+        resizeCanvas();
+        ctx.beginPath();
+        const scaleFactor = Math.min(canvas.width, canvas.height) / 40;
+        for (let tt = 0; tt <= Math.PI * 2; tt += 0.01) {
+          const x = xt(tt) * scaleFactor;
+          const y = -yt(tt) * scaleFactor;
+          if (tt === 0) {
+            ctx.moveTo(x, y);
+          } else {
+            ctx.lineTo(x, y);
+          }
+        }
+        ctx.strokeStyle = "red";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        yazi.classList.add("show");
+      }
+    });
+
+    startAnimation();
+  </script>
+</body>
+</html>
